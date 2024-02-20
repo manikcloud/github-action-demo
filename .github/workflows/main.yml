@@ -1,0 +1,30 @@
+name: Create AWS S3 Bucket
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to the main branch; adjust as needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: amazon/aws-cli  # Use the official AWS CLI Docker image
+
+    steps:
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region $AWS_REGION
+
+      - name: Create S3 Bucket
+        env:
+          S3_BUCKET_NAME: 'varun-aks-github-action'      
+        run: |
+          aws s3 mb s3://$S3_BUCKET_NAME --region $AWS_REGION
+          echo "Bucket created: $S3_BUCKET_NAME"
